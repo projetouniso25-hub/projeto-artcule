@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modo Sílabas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="simple-page">
+  <h2>🔤 Repita a palavra!</h2>
+
+  <div id="progress-container">
+    <div id="progress-text-s">1 / 20</div>
+    <div id="progress-bar-wrapper"><div id="progress-bar-s"></div></div>
+  </div>
+
+  <div class="card-word">
+    <img id="silaba-img" src="imagens/vaca.png" alt="Palavra">
+    <div id="silaba-texto" class="silaba-texto">VA - CA</div>
+  </div>
+
+  <div id="feedback-s" class="feedback hidden"></div>
+
+  <div class="controls">
+    <button id="btn-repeat-silaba" class="btn btn-repeat">🔄 Ouvir palavra 🔄</button>
+    <button id="btn-back-silaba" class="btn">⬅ Voltar Sílabas</button>
+    <button id="btn-next-silaba" class="btn">➡ Próxima</button>
+    <button id="btn-back-menu-s" class="btn btn-back">🏠 Voltar ao Menu</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+window.addEventListener("load", ()=>{
+    criarBolhas();
+    if(document.getElementById('silaba-img')) iniciarSilabasPage();
+
+    document.getElementById('btn-back-menu-s').onclick = ()=> window.location.href='menu.html';
+    document.getElementById('btn-back-silaba').onclick = ()=>{
+        if(indexSilaba>0){ indexSilaba--; mostrarSilaba(); }
+    };
+});
+</script>
+</body>
+</html>

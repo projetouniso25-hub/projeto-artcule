@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Inicial</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Ajustes visuais para os cards, caso precise */
+  .menu-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 150px;
+    border-radius: 15px;
+    background: #f0f0f0;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 18px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .card:hover {
+    transform: scale(1.05);
+    background: #d0f0d0;
+  }
+  .card-emoji {
+    font-size: 50px;
+    margin-bottom: 10px;
+  }
+  .card-title {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="bubbles"></div>
+<div class="container" id="menu-inicial">
+  <div class="howto">
+    <h2>🎮 Como Jogar</h2>
+    <p>📷 <b>Modo Câmera</b><br>Fale o nome do animal claramente para avançar.</p>
+    <p>🔡 <b>Modo Sílabas</b><br>Leia as sílabas e fale a palavra completa.</p>
+    <p>🗣️ <b>Treino Daniel</b><br>Treine palavras e sílabas interativamente com pontuação.</p>
+  </div>
+  <div class="menu-cards">
+    <a href="camera.html" class="card">
+      <div class="card-emoji">📷</div>
+      <div class="card-title">Modo Câmera</div>
+    </a>
+    <a href="silabas.html" class="card">
+      <div class="card-emoji">🔡</div>
+      <div class="card-title">Modo Sílabas</div>
+    </a>
+    <a href="treino-daniel-interativo.html" class="card">
+      <div class="card-emoji">🗣️</div>
+      <div class="card-title">Treino Daniel</div>
+    </a>
+  </div>
+</div>
+<script src="script.js"></script>
+<script>
+window.addEventListener("load", criarBolhas);
+</script>
+</body>
+</html>

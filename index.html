@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Apraxia</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bubbles"></div>
+<div class="container" id="start-page">
+  <h1>🎉 Projeto ARTcule 🎉</h1>
+  <button id="btn-start" class="btn" style="font-size:1.5rem; padding:20px 40px;">Iniciar</button>
+  <p style="margin-top:12px; font-size:1rem; color:#333;">Aguarde a introdução do assistente de voz para iniciar</p>
+</div>
+
+<script src="script.js"></script>
+<script>
+criarBolhas();
+
+document.getElementById('btn-start').onclick = ()=>{
+    falar("Bem-vindo ao Projeto articule", 0.9, ()=>{
+        window.location.href = "menu.html";
+    });
+};
+</script>
+</body>
+</html>
