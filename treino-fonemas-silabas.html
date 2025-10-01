@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treino Daniel - Interativo</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial, sans-serif; background:#f0f8ff; padding:20px; overflow-x:hidden; }
+.simple-page { max-width:600px; margin:0 auto; position:relative; z-index:1; }
+#words-list { width: 100%; height: 120px; font-size: 18px; margin-bottom:10px; }
+.word-item { cursor: grab; padding: 5px 10px; border: 1px solid #aaa; margin: 3px 0; border-radius: 5px; display:flex; justify-content:space-between; align-items:center;}
+.word-item:hover { background-color: #f0f0f0; }
+.word-item.active { background-color: #d0f0d0; font-weight: bold; }
+.word-item .delete-btn { cursor:pointer; color:red; margin-left:10px; font-weight:bold; }
+.train-card { margin-top: 20px; padding: 15px; border: 2px solid #4CAF50; border-radius: 15px; background: #ffffff; text-align:center; position:relative; z-index:2; }
+#current-word { font-size: 50px; font-weight:bold; margin-bottom:10px; color:#333; }
+#feedback-train { font-size: 24px; margin:10px 0; height:30px; }
+.feedback-success { color: green; }
+.feedback-fail { color: red; }
+.controls { margin-top: 15px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.btn { padding: 8px 12px; border:none; border-radius:5px; cursor:pointer; background:#4CAF50; color:white; font-size:16px; }
+.btn-repeat { background:#2196F3; }
+.btn-back { background:#555; }
+#score-table { margin-bottom:10px; font-size: 18px; text-align:center; }
+.bubbles { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:0; }
+.bubbles span { position:absolute; display:block; border-radius:50%; opacity:0.7; animation-name:rise; animation-timing-function:linear; animation-fill-mode: forwards; animation-iteration-count:1; }
+@keyframes rise {
+  0% { transform: translateY(100vh) scale(1); opacity:0.7; }
+  100% { transform: translateY(-50px) scale(0.5); opacity:0; }
+}
+</style>
+</head>
+<body>
+<div class="bubbles"></div>
+
+<div class="simple-page">
+  <h2>🗣️ Treino Daniel - Painel Interativo</h2>
+
+  <div class="word-input">
+    <p>Digite as palavras/sílabas do treino, uma por linha:</p>
+    <textarea id="words-list" placeholder="Ex: Ta\nBom\nTaaa\nBom Bom"></textarea>
+    <button id="btn-add-words" class="btn btn-repeat">Adicionar à Lista</button>
+  </div>
+
+  <div class="train-card">
+    <div id="score-table">Acertos: 0</div>
+    <div id="current-word"></div>
+    <div id="feedback-train"></div>
+    <div class="controls">
+      <button id="btn-mark-success" class="btn btn-repeat">✅ Acertou</button>
+      <button id="btn-mark-fail" class="btn btn-back">⚡ Tente de novo</button>
+      <button id="btn-prev-word" class="btn btn-back">⬅ Voltar palavra</button>
+      <button id="btn-next-word" class="btn">➡ Próxima</button>
+      <button id="btn-back-menu-train" class="btn btn-back">🏠 Voltar ao Menu</button>
+    </div>
+  </div>
+
+  <div class="word-list-container">
+    <h3>Lista de Palavras (arraste para reordenar)</h3>
+    <div id="word-items"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener("load", ()=>{
+
+    // ===== Bolhas contínuas =====
+    function gerarBolha(){
+        const container = document.querySelector('.bubbles');
+        const b = document.createElement('span');
+        const size = Math.random()*20+10;
+        b.style.width = b.style.height = size+'px';
+        b.style.left = Math.random()*100+'vw';
+        b.style.background = `hsl(${Math.random()*360},70%,70%)`;
+        const dur = (Math.random()*5+5)+'s';
+        b.style.animationDuration = dur;
+        container.appendChild(b);
+        b.addEventListener('animationend', ()=> b.remove());
+    }
+    setInterval(gerarBolha, 500);
+
+    // ===== Variáveis do treino =====
+    let trainWords = [];
+    let trainIndex = 0;
+    let score = 0;
+
+    const buttons = document.querySelectorAll('#btn-mark-success, #btn-mark-fail, #btn-prev-word, #btn-next-word');
+
+    // ===== Função para ativar/desativar botões =====
+    function atualizarBotoes(){
+        const habilitar = trainWords.length > 0;
+        buttons.forEach(b => b.disabled = !habilitar);
+    }
+    atualizarBotoes();
+
+    // ===== Adicionar palavras =====
+    document.getElementById('btn-add-words').onclick = () => {
+        const input = document.getElementById('words-list').value;
+        if(!input.trim()) return alert("Digite pelo menos uma palavra!");
+        const newWords = input.split('\n').map(w=>w.trim()).filter(w=>w);
+        trainWords = trainWords.concat(newWords);
+        document.getElementById('words-list').value = '';
+        trainIndex = 0;
+        score = 0;
+        atualizarListaPalavras();
+        mostrarTreino();
+        atualizarBotoes();
+    };
+
+    // ===== Atualizar lista visual =====
+    function atualizarListaPalavras(){
+        const container = document.getElementById('word-items');
+        container.innerHTML = '';
+        trainWords.forEach((w,i)=>{
+            const div = document.createElement('div');
+            div.classList.add('word-item');
+            if(i===trainIndex) div.classList.add('active');
+            div.innerText = w;
+
+            const deleteBtn = document.createElement('span');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.innerText = '❌';
+            deleteBtn.onclick = (e)=>{
+                e.stopPropagation();
+                trainWords.splice(i,1);
+                if(trainIndex>=trainWords.length) trainIndex = trainWords.length-1;
+                atualizarListaPalavras();
+                mostrarTreino();
+                atualizarBotoes();
+            };
+            div.appendChild(deleteBtn);
+
+            div.onclick = ()=>iniciarTreinoNaPalavra(i);
+
+            div.draggable = true;
+            div.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', i);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            div.addEventListener('dragover', e => e.preventDefault());
+            div.addEventListener('drop', e => {
+                e.preventDefault();
+                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIndex = i;
+                if(fromIndex === toIndex) return;
+                const movedItem = trainWords.splice(fromIndex,1)[0];
+                trainWords.splice(toIndex,0,movedItem);
+                if(trainIndex===fromIndex) trainIndex = toIndex;
+                atualizarListaPalavras();
+            });
+
+            container.appendChild(div);
+        });
+
+        atualizarScore();
+    }
+
+    // ===== Iniciar treino em palavra específica =====
+    function iniciarTreinoNaPalavra(index){
+        trainIndex = index;
+        mostrarTreino();
+    }
+
+    // ===== Mostrar palavra atual =====
+    function mostrarTreino(){
+        if(trainWords.length===0) return;
+        const wordEl = document.getElementById('current-word');
+        wordEl.innerText = trainWords[trainIndex];
+        document.getElementById('feedback-train').innerText = '';
+        atualizarListaPalavras();
+    }
+
+    // ===== Botões =====
+    document.getElementById('btn-next-word').onclick = ()=>{
+        if(trainIndex < trainWords.length - 1){
+            trainIndex++;
+            mostrarTreino();
+        } else {
+            alert("Você chegou na última palavra do treino!");
+        }
+    };
+    document.getElementById('btn-prev-word').onclick = ()=>{
+        if(trainIndex > 0){
+            trainIndex--;
+            mostrarTreino();
+        } else {
+            alert("Esta é a primeira palavra.");
+        }
+    };
+    document.getElementById('btn-back-menu-train').onclick = ()=>window.location.href='menu.html';
+    document.getElementById('btn-mark-success').onclick = ()=> mostrarFeedback(true);
+    document.getElementById('btn-mark-fail').onclick = ()=> mostrarFeedback(false);
+
+    // ===== Feedback visual e pontuação =====
+    function mostrarFeedback(ok){
+        const feedbackEl = document.getElementById('feedback-train');
+        feedbackEl.className = '';
+        feedbackEl.classList.add(ok ? 'feedback-success' : 'feedback-fail');
+        feedbackEl.innerText = ok ? "✅ Muito bem!" : "⚡ Tente de novo!";
+        if(ok) score++;
+        atualizarScore();
+    }
+
+    function atualizarScore(){
+        document.getElementById('score-table').innerText = `Acertos: ${score}`;
+    }
+
+});
+</script>
+</body>
+</html>
